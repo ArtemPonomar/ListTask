@@ -1,6 +1,14 @@
 require "minitest/autorun"
 
-class List
+class OneWayNode
+  attr_accessor :value, :next
+
+  def initialize(value)
+    @value = value
+  end
+end
+
+class OneWayList
 
   def initialize
     @head = nil
@@ -20,21 +28,21 @@ class List
 
   def add(value)
     if @head == nil then
-      @head = Node.new(value)
+      @head = OneWayNode.new(value)
     else
       current = @head
       until current.next == nil do
         current = current.next
       end
-      current.next = Node.new(value)
+      current.next = OneWayNode.new(value)
     end
   end
 
   def add_at(id, value)
-    if @head == nil then
-      @head = Node.new(value)
+    if id >= size then
+      return false
     elsif id == 0
-      new_head = Node.new(value)
+      new_head = OneWayNode.new(value)
       new_head.next = @head
       @head = new_head
     else
@@ -42,7 +50,7 @@ class List
       (id - 1).times do
         current_node = current_node.next
       end
-      node_to_insert = Node.new(value)
+      node_to_insert = OneWayNode.new(value)
       tail = current_node.next
       node_to_insert.next = tail
       current_node.next = node_to_insert
@@ -50,7 +58,7 @@ class List
   end
 
   def delete_at(id)
-    return if id > self.size - 1
+    return false if id >= size
     if id == 0 then
       @head = @head.next
     else
@@ -62,16 +70,26 @@ class List
     end
   end
 
+  def find_index_of(value)
+    return nil if @head == nil
+    current = @head
+    index = 0
+    until current == nil do
+      return index if current.value == value
+      current = current.next
+      index += 1
+    end
+    return nil
+  end
 
   def size
-    return 0 if @head == nil
-    size = 1
+    size = 0
     current = @head
-    until current.next == nil do
+    until current == nil do
       size += 1
       current = current.next
     end
-    return size
+    size
   end
 
   def get_all
@@ -87,24 +105,15 @@ class List
 
 end
 
-class Node
-  def initialize(value)
-    @value = value
-    @next = nil
-  end
-
-  attr_accessor :value, :next
-end
-
 class Test < Minitest::Test
   def setup
-    @list = List.new
+    @list = OneWayList.new
     @list.add(1)
     @list.add(2)
   end
 
   def test_get_all
-    assert_equal [1,2], @list.get_all
+    assert_equal [1, 2], @list.get_all
   end
 
   def test_add
@@ -130,5 +139,8 @@ class Test < Minitest::Test
     assert_equal 2, @list.size
   end
 
+  def test_find_index_of
+    assert_equal 1, @list.find_index_of(2)
+  end
 end
 
